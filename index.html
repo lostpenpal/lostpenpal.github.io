@@ -1,0 +1,118 @@
+<!DOCTYPE html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>cobweb</title><style type=text/css>img {
+	-webkit-filter: grayscale(100%); /* Chrome, Safari, Opera */
+	filter: grayscale(100%);
+}
+
+canvas {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	background-color: #000;
+	z-index: -1;
+}</style><link href=/static/css/app.4a80a43f22a412f8358d7109d174dd5e.css rel=stylesheet></head><body style="background-color: black;"><div id=app></div><canvas id=canvas></canvas><script src=/static/js/jquery-2.1.3.min.js></script><script type=text/javascript>var ctx = null, canvas = null;
+		var param = {
+			x : 0,
+			y : 0,
+			radius : 1
+		}
+		var mouse = {
+			x : 0,
+			y : 0
+		}
+		var m = new object(param, 0);
+		var circles = [];
+
+		function object(param, angle) {
+			this.x = this.x = (param.x == null) ? 0 : param.x;
+			this.y = this.y = (param.y == null) ? 0 : param.y;
+			this.radius = this.radius = (param.radius == null) ? 0
+					: param.radius;
+			this.angle = angle * Math.PI / 180;
+			this.speed = rand(3);
+
+			this.generate = function(ctx, type) {
+				ctx.beginPath();
+				ctx.fillStyle = 'rgba(255,255,255,0.1)';
+				ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+				ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 180, false);
+				if (type == 'stroke')
+					ctx.stroke();
+				else
+					ctx.fill();
+			}
+
+			this.move = function() {
+				if (this.speed != null) {
+					this.x += Math.cos(this.angle) * this.speed;
+					this.y += Math.sin(this.angle) * this.speed;
+				}
+			}
+			this.outScreen = function() {
+				if (this.x > canvas.width)
+					this.x = 0;
+				if (this.y > canvas.height)
+					this.y = 0;
+				if (this.x < 0)
+					this.x = canvas.width;
+				if (this.y < 0)
+					this.y = canvas.height;
+			}
+			this.distance = function(object) {
+				var dx = object.x - this.x;
+				var dy = object.y - this.y;
+				return (Math
+						.sqrt((dx * dx) + (dy * dy)/*-this.radius+object.radius*/));
+			}
+		}
+		function init() {
+			canvas = document.getElementById('canvas');
+			canvas.width = screen.availWidth;
+			canvas.height = screen.availHeight;
+
+			for (var i = 0; i <= 360; i++) {
+				param.x = rand(600);
+				param.y = rand(600);
+				param.radius = rand(2);
+				circles.push(new object(param, rand(360)));
+			}
+			ctx = canvas.getContext('2d')
+			animate(ctx);
+		}
+		function animate(ctx) {
+			setInterval(function() {
+				// ctx.fillStyle = '#000';
+				// ctx.fillRect(0, 0, canvas.width, canvas.height);
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				m.x = mouse.x;
+				m.y = mouse.y;
+				for (var i = 0, l = circles.length; i < l; i++) {
+					circles[i].move();
+					circles[i].outScreen();
+					if (circles[i].distance(m) < 360) {
+						for (j = 0, J = circles.length; j < J; j++) {
+							if (circles[i].distance(circles[j]) < 200) {
+								ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+								ctx.lineWidth = 0.5;
+								ctx.beginPath();
+								ctx.moveTo(circles[i].x, circles[i].y);
+								ctx.lineTo(circles[j].x, circles[j].y);
+								ctx.stroke();
+							}
+						}
+					}
+
+				}
+
+			}, 20);
+		}
+		function rand(max) {
+			return Math.floor(Math.random() * max);
+		}
+		$(document).ready(function($) {
+			init();
+			$(document).mousemove(function(event) {
+				/* Act on the event */
+				mouse.x = event.clientX - canvas.offsetLeft;
+				mouse.y = event.clientY - canvas.offsetTop;
+			});
+		});</script><script type=text/javascript src=/static/js/manifest.2ae2e69a05c33dfc65f8.js></script><script type=text/javascript src=/static/js/vendor.2d0c229dae75ccddf3cf.js></script><script type=text/javascript src=/static/js/app.c286b9e76561e6bfb65e.js></script></body></html>
